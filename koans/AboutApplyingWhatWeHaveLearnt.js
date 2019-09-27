@@ -35,10 +35,23 @@ describe("About Applying What We Have Learnt", function() {
 
   it("given I'm allergic to nuts and hate mushrooms, it should find a pizza I can eat (functional)", function () {
       var productsICanEat = [];
+      var tempProduct = [];
+      for (i = 0; i < products.length; i++){
+        if(products[i].containsNuts === false){
+          productsICanEat.push(products[i]['ingredients']);
+        }
+      }
+      var noMushrooms = function(x) { return x !== 'mushrooms' };
+      for(i = 0; i < productsICanEat.length; i++){
+        let isMush = _(productsICanEat[i]).all(noMushrooms);
+        tempProduct.push(isMush);
+      }
+      productsICanEat = tempProduct;
+      productsICanEat = productsICanEat.filter(bools => bools === true);
 
       /* solve using filter() & all() / any() */
 
-      expect(productsICanEat.length).toBe(0);
+      expect(productsICanEat.length).toBe(1);
   });
 
   /*********************************************************************************/
@@ -61,7 +74,7 @@ describe("About Applying What We Have Learnt", function() {
         return elem+numb;
       });    /* try chaining range() and reduce() */
 
-    expect(233168).toBe(sum);
+    expect(sum).toBe(233168);
   });
 
   /*********************************************************************************/
@@ -79,21 +92,31 @@ describe("About Applying What We Have Learnt", function() {
 
   it("should count the ingredient occurrence (functional)", function () {
     var ingredientCount = { "{ingredient name}": 0 };
-    let ingredientsList = [];
-    /* chain() together map(), flatten() and reduce() */
-    for (i = 0; i < products.length; i++){
-      ingredientList.push(products[i].ingredients);
-      }
+
+    for (i = 0; i < products.length; i+=1) {
+        for (j = 0; j < products[i].ingredients.length; j+=1) {
+            ingredientCount[products[i].ingredients[j]] = (ingredientCount[products[i].ingredients[j]] || 0) + 1;
+        }
     }
-    let total = ingredientList.flat().map(function(x){
-      if(x==='mushrooms'){
-        return 1;
-      } else {
-        return 0;
-      }}).reduce(function(accumulator, currentValue){
-        return accumulator+currentValue;
-      });
-    expect(ingredientCount['mushrooms']).toBe(total);
+
+    /* chain() together map(), flatten() and reduce() */
+
+    var productList = [];
+    for(i = 0; i < products.length; i++){
+      productList.push(products[i]['ingredients']);
+    }
+    let count = _(productList).chain()
+      .flatten()
+      .map(function(x){
+        if(x === 'mushrooms'){
+          return 1;
+        } else {
+          return 0;
+        }
+      })
+      .reduce(function (sum, add){ return sum+add })
+      .value();
+    expect(ingredientCount['mushrooms']).toBe(count);
   });
 
   /*********************************************************************************/
